@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sauda Booking</title>
+<style>
+  :root{
+    --bg-main:#ffe4e6;
+    --card-bg:#fff;
+    --card-radius:22px;
+    --card-shadow:0 25px 60px rgba(15,23,42,.18);
+    --accent-green:#7cc91a;
+    --accent-green-dark:#5ca20b;
+    --accent-purple:#ef4444;
+    --text-main:#111827;
+    --text-muted:#6b7280;
+    --field-border:#d1d5db;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    min-height:100vh;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg-main);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+    color:#111827;
+  }
+
+  .outer-shell{
+    width:100%;
+    max-width:1180px;
+  }
+
+  .container{
+    background:#fff;
+    border-radius:var(--card-radius);
+    box-shadow:var(--card-shadow);
+    overflow:visible;
+    border:1px solid #e5e7eb;
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .container:hover{
+    transform:translateY(-2px);
+    box-shadow:0 30px 70px rgba(15,23,42,.22);
+  }
+
+  .brand-bar{
+    background:linear-gradient(90deg,#b91c1c,#ef4444);
+    padding:16px 28px;
+    color:#fef2f2;
+  }
+  .brand-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-logo {
+    width: 110px;
+    height: 58px;
+    border-radius: 14px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+    font-size: 15px;
+    color: #b91c1c;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      background 0.25s ease;
+  }
+  .brand-logo:hover {
+    transform: translateY(-3px) scale(1.03);
+    background: #fff7f7;
+    box-shadow: 0 12px 28px rgba(185,28,28,0.35);
+  }
+  .logo-two-line span {
+    line-height: 14px;
+    display: block;
+  }
+
+  .brand-title h1{
+    font-size:22px;
+  }
+
+  .content{
+    padding:20px 24px 24px;
+  }
+
+  h2.section-title{
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:#9f1239;
+    margin:18px 0 8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  h2.section-title::before{
+    content:'';
+    width:14px;
+    height:4px;
+    border-radius:999px;
+    background:linear-gradient(90deg,#ef4444,#7cc91a);
+  }
+
+  .section-shell{
+    background:#fef2f2;
+    border-radius:16px;
+    padding:14px 16px;
+    border:1px solid #fecaca;
+    margin-bottom:10px;
+    position:relative;
+    overflow:visible;
+    transition:box-shadow .25s ease,border-color .25s ease,background .25s ease,transform .2s ease;
+  }
+  .section-shell::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:inherit;
+    border:1px solid transparent;
+    pointer-events:none;
+    transition:border-color .25s ease,opacity .25s ease;
+    opacity:0;
+  }
+  .section-shell:hover{
+    box-shadow:0 15px 40px rgba(15,23,42,.16);
+    border-color:#fecaca;
+    background:radial-gradient(circle at top left,#fee2e2 0,#fef2f2 40%,#ffffff 100%);
+    transform:translateY(-1px);
+  }
+  .section-shell:hover::before{
+    border-color:rgba(248,113,113,.7);
+    opacity:1;
+  }
+
+  .row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .field{
+    flex:1 1 220px;
+    min-width:180px;
+  }
+  .field label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:600;
+    color:#374151;
+    margin-bottom:4px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    border-radius:999px;
+    border:1px solid var(--field-border);
+    background:#fef2f2;
+    padding:8px 12px;
+    font-size:13px;
+    transition:border-color .2s ease,box-shadow .2s ease,background .2s ease,transform .12s ease;
+  }
+  .field textarea{
+    border-radius:12px;
+    min-height:80px;
+    resize:vertical;
+  }
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover{
+    border-color:#f97373;
+    background:#ffffff;
+    box-shadow:0 0 0 1px rgba(248,113,113,.4),0 8px 20px rgba(15,23,42,.08);
+    transform:translateY(-1px);
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:#ef4444;
+    box-shadow:0 0 0 2px rgba(248,113,113,.5),0 10px 26px rgba(15,23,42,.12);
+    background:#ffffff;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+    font-size:12px;
+  }
+  th,td{
+    border:1px solid #e5e7eb;
+    padding:4px;
+    text-align:center;
+    color:#374151;
+  }
+  tfoot td{
+    background:#fef2f2;
+    font-weight:600;
+  }
+
+  .item-card{
+    background:#fff;
+    border-radius:16px;
+    padding:10px 11px 12px;
+    border:1px solid #fecaca;
+    box-shadow:0 8px 26px rgba(15,23,42,.08);
+    margin-top:10px;
+    position:relative;
+    overflow:visible;
+    transition:box-shadow .22s ease,border-color .22s ease,transform .18s ease,background .22s ease;
+  }
+  .item-card:hover{
+    transform:translateY(-2px);
+    border-color:#fecaca;
+    box-shadow:0 18px 40px rgba(248,113,113,.35);
+    background:radial-gradient(circle at top,#fee2e2 0,#ffffff 45%,#fef2f2 100%);
+  }
+
+  .item-card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .item-label{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .item-label-title{
+    font-size:13px;
+    font-weight:600;
+  }
+  .item-label-sub{
+    font-size:11px;
+    color:#6b7280;
+  }
+  .item-index-chip{
+    width:26px;
+    height:26px;
+    border-radius:999px;
+    background:#fee2e2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#b91c1c;
+    font-weight:700;
+    font-size:13px;
+    box-shadow:0 4px 12px rgba(248,113,113,.7);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .item-card:hover .item-index-chip{
+    transform:translateY(-1px) scale(1.05);
+    box-shadow:0 8px 18px rgba(248,113,113,.9);
+  }
+
+  .btn-chip,
+  .btn-small,
+  .btn-primary,
+  .btn-secondary{
+    position:relative;
+    overflow:hidden;
+    transition:transform .12s ease,box-shadow .2s ease,background .2s ease,opacity .2s ease;
+  }
+
+  .btn-chip{
+    border-radius:999px;
+    border:1px solid #fecaca;
+    background:#fef2f2;
+    padding:5px 10px;
+    font-size:11px;
+    color:#7f1d1d;
+    cursor:pointer;
+  }
+
+  .btn-small{
+    font-size:12px;
+    padding:6px 12px;
+    border:none;
+    border-radius:999px;
+    background:#b91c1c;
+    color:#f9fafb;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(185,28,28,.55);
+  }
+
+  .btn-row{
+    margin:18px 0 4px;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+  }
+
+  .btn-primary{
+    border:none;
+    border-radius:999px;
+    font-size:13px;
+    padding:8px 16px;
+    background:linear-gradient(90deg,#ef4444,#b91c1c);
+    color:#fef2f2;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 18px rgba(185,28,28,.55);
+  }
+  .btn-secondary{
+    border:none;
+    border-radius:999px;
+    font-size:13px;
+    padding:8px 16px;
+    background:#111827;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 18px rgba(15,23,42,.6);
+  }
+
+  .btn-chip:hover,
+  .btn-small:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover{
+    transform:translateY(-1px) scale(1.03);
+    box-shadow:0 10px 24px rgba(15,23,42,.35);
+    opacity:0.96;
+  }
+  .btn-chip:active,
+  .btn-small:active,
+  .btn-primary:active,
+  .btn-secondary:active{
+    transform:translateY(1px) scale(0.97);
+    box-shadow:0 4px 10px rgba(15,23,42,.35);
+    opacity:0.9;
+  }
+
+  .suggestion-box{
+    position:fixed;
+    left:0;
+    top:0;
+    background:#fff;
+    border:1px solid #fecaca;
+    border-radius:8px;
+    z-index:9999;
+    max-height:240px;
+    overflow-y:auto;
+    box-shadow:0 8px 20px rgba(248,113,113,.3);
+    display:none;
+    min-width:240px;
+    max-width:360px;
+  }
+  .suggestion-item{
+    padding:8px 10px;
+    cursor:pointer;
+    font-size:12px;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .suggestion-item .left{color:#111827}
+  .suggestion-item .right{color:#6b7280}
+  .suggestion-item:hover,
+  .suggestion-item.active{
+    background:#fee2e2;
+  }
+
+  .suggestion-item.add-item-footer{
+    justify-content:center;
+    font-weight:600;
+    border-top:1px solid #fecaca;
+    background:#b91c1c;
+    color:#fef2f2;
+  }
+  .suggestion-item.add-item-footer .left{color:#fef2f2}
+  .suggestion-item.add-item-footer:hover{
+    background:#7f1d1d;
+  }
+
+  .table-disabled{opacity:.45;pointer-events:none}
+  .hidden{display:none}
+  .sizes-footer{margin-top:6px;display:flex;gap:8px}
+
+  .manualToggleWrapper{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .manualToggleCaption{
+    font-size:11px;
+    color:#9f1239;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+  }
+  .manualQtyToggle{
+    -webkit-appearance:none;
+    appearance:none;
+    position:relative;
+    width:88px;
+    height:28px;
+    border-radius:999px;
+    display:inline-block;
+    cursor:pointer;
+    background:#fee2e2;
+    border:1px solid #fecaca;
+    box-shadow:inset 0 0 0 1px rgba(248,113,113,.3),0 4px 10px rgba(248,113,113,.25);
+    transition:background .22s ease,box-shadow .22s ease,transform .1s ease;
+  }
+  .manualQtyToggle::after{
+    content:"AUTO";
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.08em;
+    color:#b91c1c;
+    text-transform:uppercase;
+    pointer-events:none;
+  }
+  .manualQtyToggle::before{
+    content:"";
+    position:absolute;
+    top:3px;
+    left:3px;
+    width:24px;
+    height:22px;
+    border-radius:999px;
+    background:#ffffff;
+    box-shadow:0 2px 6px rgba(15,23,42,.35);
+    transition:transform .22s ease;
+  }
+  .manualQtyToggle:checked{
+    background:linear-gradient(90deg,#fb7185,#b91c1c);
+    box-shadow:0 0 0 1px rgba(248,113,113,.7),0 6px 14px rgba(248,113,113,.7);
+  }
+  .manualQtyToggle:checked::before{transform:translateX(58px);}
+  .manualQtyToggle:checked::after{
+    content:"MANUAL";
+    color:#fef2f2;
+  }
+  .manualQtyToggle:hover{transform:translateY(-1px);}
+  .manualQtyToggle:focus-visible{
+    outline:2px solid #fb7185;
+    outline-offset:3px;
+  }
+
+  .row-manual{
+    margin-bottom:6px;
+    align-items:flex-end;
+  }
+  .manualToggleBar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:4px;
+  }
+  .manualModeHint{
+    font-size:11px;
+    color:#6b7280;
+    max-width:260px;
+    line-height:1.3;
+  }
+  .manualModeHint .hint-auto{
+    font-weight:700;
+    font-size:12px;
+    color:#b91c1c;
+  }
+
+  @media (max-width: 900px){
+    body{
+      padding:16px 8px;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .outer-shell{
+      max-width:100%;
+    }
+    .container{
+      border-radius:16px;
+    }
+    .content{
+      padding:16px 14px 18px;
+    }
+  }
+
+  @media (max-width: 640px){
+    body{
+      padding:0;
+    }
+    .outer-shell{
+      max-width:100%;
+    }
+    .container{
+      border-radius:0;
+      box-shadow:none;
+      border:none;
+    }
+    .brand-bar{
+      padding:12px 16px;
+    }
+    .brand-title h1{
+      font-size:18px;
+    }
+    .content{
+      padding:12px 10px 16px;
+    }
+    h2.section-title{
+      font-size:12px;
+      margin:12px 0 6px;
+    }
+    .section-shell{
+      padding:10px;
+      border-radius:10px;
+      margin-bottom:8px;
+    }
+    .row{
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .field{
+      min-width:100%;
+      flex:1 1 auto;
+    }
+    .field label{
+      font-size:11px;
+    }
+    .field input,
+    .field select,
+    .field textarea{
+      font-size:13px;
+      padding:9px 12px;
+    }
+    .item-card{
+      padding:8px 8px 10px;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
+    }
+    .item-card-header{
+      flex-direction:row;
+      align-items:flex-start;
+      gap:6px;
+    }
+    .manualToggleBar{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:4px;
+    }
+    .manualModeHint{
+      max-width:100%;
+    }
+    .item-card table{
+      display:block;
+      overflow-x:auto;
+      white-space:nowrap;
+    }
+    .suggestion-box{
+      max-width:90vw;
+      min-width:60vw;
+    }
+    .btn-row{
+      justify-content:space-between;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="outer-shell">
+  <div class="container">
+    <div class="brand-bar">
+      <div class="brand-title">
+        <div class="brand-logo logo-two-line">
+          <span>Steel</span>
+          <span>Mart</span>
+        </div>
+        <div class="brand-text"><h1>Sauda Booking</h1></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <h2 class="section-title">Basic Details</h2>
+      <div class="section-shell">
+        <div class="row">
+          <div class="field">
+            <label for="bookingDate">Booking Date</label>
+            <input type="date" id="bookingDate" required>
+          </div>
+          <div class="field">
+            <label for="firmName">Firm Name <span class="sub">Required</span></label>
+            <input type="text" id="firmName" placeholder="Enter firm name" required>
+          </div>
+          <div class="field">
+            <label for="totalQtyHeader">Effective Total Qty <span class="sub">Auto · MT</span></label>
+            <input type="number" id="totalQtyHeader" readonly>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Items &amp; Rates</h2>
+      <div class="section-shell">
+        <div id="itemsContainer"></div>
+        <div style="margin-top:8px;">
+          <button type="button" class="btn-small" id="addItemBtn">＋ Add Item</button>
+        </div>
+      </div>
+
+      <h2 class="section-title">Other Details (optional)</h2>
+      <div class="section-shell">
+        <div class="row">
+          <div class="field" style="flex:1 1 100%;">
+            <label for="remarks">Remarks / Notes</label>
+            <textarea id="remarks" rows="3" placeholder="Delivery details, quality, etc."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" onclick="resetForm()">↺ Reset</button>
+        <button type="button" class="btn-primary" onclick="shareOnWhatsApp()">🟢 Share on WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const MAX_ITEMS=25;
+  const itemsContainer=document.getElementById('itemsContainer');
+  const totalQtyHeader=document.getElementById('totalQtyHeader');
+  const addItemBtn=document.getElementById('addItemBtn');
+  const bookingDateEl=document.getElementById('bookingDate');
+  function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+
+  function isoDateOnly(d){
+    const z=new Date(d); z.setHours(0,0,0,0);
+    return `${z.getFullYear()}-${String(z.getMonth()+1).padStart(2,'0')}-${String(z.getDate()).padStart(2,'0')}`;
+  }
+  (function initDateField(){
+    const today=new Date();
+    const todayStr=isoDateOnly(today);
+    bookingDateEl.max=todayStr;
+    bookingDateEl.value=todayStr;
+  })();
+
+  const PIPE_SIZES=[{"label":"0.75\" 19x19(1.2)","weight":4},{"label":"0.75\" 19x19(1.6)","weight":5},{"label":"0.75\" 19x19(2.0)","weight":6},{"label":"1\" 25x25(1.2)","weight":6},{"label":"1\" 25x25(1.6)","weight":7},{"label":"1\" 25x25(2.0)","weight":9},{"label":"1\" 25x25(2.5)","weight":11.5},{"label":"1.25\" 32x32(1.2)","weight":7},{"label":"1.25\" 32x32(1.6)","weight":9},{"label":"1.25\" 32x32(2.0)","weight":11},{"label":"1.25\" 32x32(2.5)","weight":15.5},{"label":"1.25\" 32x32(2.9)","weight":17.5},{"label":"1.5\" 38x38(1.2)","weight":8.5},{"label":"1.5\" 38x38(1.6)","weight":11},{"label":"1.5\" 38x38(2.0)","weight":13},{"label":"1.5\" 38x38(2.5)","weight":17},{"label":"1.5\" 38x38(2.9)","weight":19},{"label":"47x47(1.6)","weight":14},{"label":"2\" 50x50(1.2)","weight":11},{"label":"2\" 50x50(1.6)","weight":15},{"label":"2\" 50x50(2.0)","weight":18},{"label":"2\" 50x50(2.5)","weight":23},{"label":"2\" 50x50(2.9)","weight":26},{"label":"2.5\" 60x60(1.6)","weight":17},{"label":"2.5\" 60x60(2.0)","weight":22},{"label":"2.5\" 60x60(2.5)","weight":28},{"label":"3\" 72x72(1.6)","weight":21},{"label":"3\" 72x72(2.0)","weight":27},{"label":"3\" 72x72(2.5)","weight":33},{"label":"3\" 72x72(2.9)","weight":39},{"label":"1.5\" x 0.75\" 40x20(1.2)","weight":7},{"label":"1.5\" x 0.75\" 40x20(1.6)","weight":9},{"label":"1.5\" x 0.75\" 40x20(2.0)","weight":11},{"label":"1.5\" x 0.75\" 40x20(2.5)","weight":15},{"label":"2\" x 1\" 50x25(1.2)","weight":8.5},{"label":"2\" x 1\" 50x25(1.6)","weight":11},{"label":"2\" x 1\" 50x25(2.0)","weight":13},{"label":"2\" x 1\" 50x25(2.5)","weight":18},{"label":"2\" x 1\" 50x25(2.9)","weight":21},{"label":"60x40(1.2)","weight":10},{"label":"60x40(1.6)","weight":14},{"label":"60x40(2.0)","weight":17},{"label":"60x40(2.5)","weight":23},{"label":"60x40(2.9)","weight":27},{"label":"75x25(1.2)","weight":10},{"label":"75x25(1.6)","weight":14},{"label":"75x25(2.0)","weight":17},{"label":"75x25(2.5)","weight":22},{"label":"75x25(2.9)","weight":25},{"label":"80x40(1.6)","weight":17},{"label":"80x40(2.0)","weight":22},{"label":"80x40(2.5)","weight":28},{"label":"80x40(2.9)","weight":31},{"label":"96x48(1.6)","weight":21},{"label":"96x48(2.0)","weight":27},{"label":"96x48(2.5)","weight":33},{"label":"96x48(2.9)","weight":39},{"label":"0.75\" 25OD(1.2)","weight":4},{"label":"0.75\" 25OD(1.6)","weight":5},{"label":"0.75\" 25OD(2.0)","weight":6},{"label":"1\" 33.4OD(1.2)","weight":6},{"label":"1\" 33.4OD(1.6)","weight":7},{"label":"1\" 33.4OD(2.0)","weight":9},{"label":"1\" 33.4OD(2.5)","weight":11.5},{"label":"1.25\" 41OD(1.2)","weight":7},{"label":"1.25\" 41OD(1.6)","weight":9},{"label":"1.25\" 41OD(2.0)","weight":11},{"label":"1.25\" 41OD(2.5)","weight":15.5},{"label":"1.25\" 41OD(2.9)","weight":17.5},{"label":"1.5\" 48.3OD(1.2)","weight":8.5},{"label":"1.5\" 48.3OD(1.6)","weight":11},{"label":"1.5\" 48.3OD(2.0)","weight":13},{"label":"1.5\" 48.3OD(2.5)","weight":17},{"label":"1.5\" 48.3OD(2.9)","weight":20},{"label":"2\" 60.3OD(1.2)","weight":10},{"label":"2\" 60.3OD(1.6)","weight":14},{"label":"2\" 60.3OD(2.0)","weight":17},{"label":"2\" 60.3OD(2.5)","weight":22},{"label":"2\" 60.3OD(2.9)","weight":24},{"label":"2.5\" 76.2OD(1.6)","weight":17},{"label":"2.5\" 76.2OD(2.0)","weight":22},{"label":"2.5\" 76.2OD(2.5)","weight":28},{"label":"3\" 88OD(1.6)","weight":21},{"label":"3\" 88OD(2.0)","weight":27},{"label":"3\" 88OD(2.5)","weight":33},{"label":"3\" 88OD(2.9)","weight":39}];
+  const ANGLE_SIZES=[{"label":"25x3","weight":6.2},{"label":"25x5","weight":10.5},{"label":"32x3","weight":8},{"label":"35x3","weight":10.6},{"label":"35x4","weight":12},{"label":"35x5","weight":14.5},{"label":"40x4","weight":14},{"label":"40x5","weight":18},{"label":"50x4","weight":17.5},{"label":"50x5","weight":21.5},{"label":"50x6","weight":26.6},{"label":"65x5","weight":28.5},{"label":"65x6","weight":34.5}];
+  const CHANNEL_SIZES=[{"label":"75x40 (3\"X1.5\")","weight":36},{"label":"70x35 (3\"X1.5\")","weight":22},{"label":"100x50 (4\" x 2\")","weight":56}];
+
+  const SQBAR_SIZES=[{"label":"Sq.Bar 08MM","weight":3},{"label":"Sq.Bar 10MM","weight":4.8},{"label":"Sq.Bar 12MM","weight":7}];
+  const ROUNDBAR_SIZES=[{"label":"Round Bar 08MM","weight":4.2},{"label":"Round Bar 10MM","weight":3.6},{"label":"Round Bar 12MM","weight":6},{"label":"Round Bar 16MM","weight":9.6}];
+  const FLAT_SIZES=[{"label":"20x5","weight":4.8},{"label":"25x3","weight":3.8},{"label":"25x5","weight":6},{"label":"32x5","weight":8},{"label":"40x3","weight":5.5},{"label":"40x5","weight":9.8},{"label":"50x5","weight":12},{"label":"40x6","weight":11.6},{"label":"50x6","weight":13}];
+
+  const BINDINGWIRE_SIZES=[{"label":"18G 25KG","weight":25},{"label":"18G 10KG","weight":10},{"label":"20G 25KG","weight":25},{"label":"20G 10KG","weight":10}];
+  const NAILS_SIZES=[{"label":"20KG Packing","weight":20}];
+  const BOPP_SIZES=[{"label":"84 MM (36 Piece)","weight":36},{"label":"48 MM (72 Piece)","weight":72}];
+  const CUTTING_SIZES=[{"label":"4\" (50 Piece) Black","weight":50},{"label":"4\" (50 Piece) Brown","weight":50},{"label":"14\" (25 Piece) Green","weight":25},{"label":"14\" (25 Piece) Black","weight":25}];
+
+  const CATEGORY_MAP = {
+    'Pipe': PIPE_SIZES, 'Angle': ANGLE_SIZES, 'Channel': CHANNEL_SIZES,
+    'Sq. Bar': SQBAR_SIZES, 'Round Bar': ROUNDBAR_SIZES, 'Flat': FLAT_SIZES,
+    'Binding Wire': BINDINGWIRE_SIZES, 'Nails': NAILS_SIZES, 'Bopp Tape': BOPP_SIZES,
+    'Cutting Wheels': CUTTING_SIZES
+  };
+  const ALL_SIZES = Object.entries(CATEGORY_MAP).flatMap(([cat, arr]) =>
+    arr.map(o => ({ itemType: cat, label: o.label, weight: o.weight }))
+  );
+
+  function attachSuggestion(sizeInput, itemTypeSelect, weightInput, card){
+    const box=document.createElement('div');
+    box.className='suggestion-box';
+    document.body.appendChild(box);
+
+    function placeBox(){
+      if(box.style.display==='none') return;
+      const rect=sizeInput.getBoundingClientRect();
+      const vw=window.innerWidth;
+      const vh=window.innerHeight;
+
+      box.style.minWidth = rect.width + 'px';
+
+      let left = rect.left;
+      let top  = rect.bottom + 4;
+
+      box.style.left = left + 'px';
+      box.style.top  = top  + 'px';
+
+      const boxRect = box.getBoundingClientRect();
+
+      if(boxRect.right > vw - 8){
+        left = Math.max(8, vw - boxRect.width - 8);
+      }
+
+      if(boxRect.bottom > vh - 8){
+        top = rect.top - boxRect.height - 4;
+        if(top < 8) top = 8;
+      }
+
+      box.style.left = left + 'px';
+      box.style.top  = top  + 'px';
+    }
+
+    function currentList(){
+      const sel=itemTypeSelect.value;
+      if(sel){
+        return (CATEGORY_MAP[sel]||[]).map(o=>({itemType:sel,label:o.label,weight:o.weight}));
+      }
+      return ALL_SIZES;
+    }
+
+    function renderList(list, showItemTag){
+      if(!list.length){ box.style.display='none'; return; }
+      box.innerHTML='';
+      list.forEach(m=>{
+        const d=document.createElement('div'); d.className='suggestion-item';
+        const leftText = showItemTag ? `[${m.itemType}] ${m.label}` : m.label;
+        d.innerHTML = `<span class="left">${leftText}</span><span class="right">${typeof m.weight==='number'?m.weight:''}</span>`;
+        d.addEventListener('click',()=>{
+          if(!itemTypeSelect.value){ itemTypeSelect.value = m.itemType; updateLabelsForCard(card); }
+          const prefix = (m.itemType==='Pipe'||m.itemType==='Angle'||m.itemType==='Channel'||m.itemType==='Flat') ? `${m.itemType} ` : '';
+          sizeInput.value = `${prefix}${m.label}`;
+          if(typeof m.weight==='number') weightInput.value = m.weight;
+          recalcItemTotals(card); updateEffectiveTotalQty();
+          box.style.display='none';
+        });
+        box.appendChild(d);
+      });
+
+      const addRow = document.createElement('div');
+      addRow.className = 'suggestion-item add-item-footer';
+      addRow.innerHTML = `<span class="left">＋ Add Item</span>`;
+      addRow.addEventListener('click', () => {
+        box.style.display='none';
+        const newCard = addItemCard();
+        if(newCard){
+          newCard.scrollIntoView({behavior:'smooth', block:'center'});
+          const firstSize = newCard.querySelector('.sizeInput');
+          if(firstSize) firstSize.focus();
+        }
+      });
+      box.appendChild(addRow);
+
+      box.style.display='block';
+      placeBox();
+    }
+
+    function filterAndShow(){
+      const list = currentList();
+      const q = sizeInput.value.trim().toLowerCase();
+      const showItemTag = !itemTypeSelect.value;
+      const searchPool = list.map(s => ({
+        ...s,
+        searchText: (showItemTag ? `[${s.itemType}] ${s.label}` : s.label).toLowerCase()
+      }));
+      const matches = q ? searchPool.filter(s=>s.searchText.includes(q)) : searchPool;
+      renderList(matches, showItemTag);
+    }
+
+    sizeInput.addEventListener('focus', filterAndShow);
+    sizeInput.addEventListener('input', filterAndShow);
+    document.addEventListener('click',e=>{
+      if(!box.contains(e.target) && e.target!==sizeInput) box.style.display='none';
+    });
+
+    sizeInput.addEventListener('keydown',e=>{
+      if(box.style.display!=='block') return;
+      const items=[...box.querySelectorAll('.suggestion-item')];
+      if(!items.length) return;
+      let idx=items.findIndex(el=>el.classList.contains('active'));
+      if(e.key==='ArrowDown'){
+        e.preventDefault();
+        items.forEach(el=>el.classList.remove('active'));
+        idx=Math.min(idx+1, items.length-1);
+        items[idx].classList.add('active');
+        items[idx].scrollIntoView({block:'nearest'});
+      }else if(e.key==='ArrowUp'){
+        e.preventDefault();
+        items.forEach(el=>el.classList.remove('active'));
+        idx=Math.max(idx-1, 0);
+        items[idx].classList.add('active');
+        items[idx].scrollIntoView({block:'nearest'});
+      }else if(e.key==='Enter'){
+        e.preventDefault();
+        if(idx>=0){ items[idx].click(); }
+      }
+    });
+
+    window.addEventListener('scroll',()=>{ if(box.style.display==='block') placeBox(); }, true);
+    window.addEventListener('resize',()=>{ if(box.style.display==='block') placeBox(); });
+
+    itemTypeSelect.addEventListener('change', ()=>{
+      box.style.display='none';
+      filterAndShow();
+    });
+  }
+
+  function addSizeRow(card){
+    const tbody=card.querySelector('tbody');
+    const rowIndex=tbody.children.length+1;
+
+    const tr=document.createElement('tr');
+    tr.dataset.lastEdited = 'nos';
+    tr.innerHTML=`
+      <td>${rowIndex}</td>
+      <td><input type="text" class="sizeInput" placeholder="Click or type to search"></td>
+      <td><input type="number" class="weightInput" step="0.01" min="0"></td>
+      <td class="mtCol"><input type="number" class="mtInput" step="any" min="0" placeholder="0.000"></td>
+      <td><input type="number" class="nosInput" step="1" min="0"></td>
+      <td><input type="number" class="totalInput" readonly></td>`;
+    tbody.appendChild(tr);
+
+    const itemTypeSelect=card.querySelector('.itemTypeSelect');
+    const sizeInput=tr.querySelector('.sizeInput');
+    const weightInput=tr.querySelector('.weightInput');
+    const nosInput=tr.querySelector('.nosInput');
+    const mtInput=tr.querySelector('.mtInput');
+
+    attachSuggestion(sizeInput,itemTypeSelect,weightInput,card);
+
+    weightInput.addEventListener('input',()=>{
+      recalcItemTotals(card);
+      updateEffectiveTotalQty();
+    });
+
+    nosInput.addEventListener('input',()=>{
+      tr.dataset.lastEdited = 'nos';
+      recalcItemTotals(card);
+      updateEffectiveTotalQty();
+    });
+
+    mtInput.addEventListener('input',()=>{
+      tr.dataset.lastEdited = 'mt';
+      recalcItemTotals(card);
+      updateEffectiveTotalQty();
+    });
+
+    updateLabelsForCard(card);
+  }
+
+  function createItemCard(index){
+    const card=document.createElement('div'); card.className='item-card';
+    card.innerHTML=`
+      <div class="item-card-header">
+        <div class="item-label">
+          <div class="item-index-chip">${index}</div>
+          <div>
+            <div class="item-label-title">Item #${index}</div>
+            <div class="item-label-sub">Select item, order type & rates</div>
+          </div>
+        </div>
+        <button type="button" class="btn-chip removeItemBtn">✕ Remove</button>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Item <span class="sub">Pipe / Angle / Channel...</span></label>
+          <select class="itemTypeSelect">
+            <option value="">Select Item</option>
+            <option value="Pipe">Pipe</option><option value="Angle">Angle</option><option value="Channel">Channel</option>
+            <option value="Sq. Bar">Sq. Bar</option><option value="Round Bar">Round Bar</option><option value="Flat">Flat</option>
+            <option value="Binding Wire">Binding Wire</option><option value="Nails">Nails</option><option value="Bopp Tape">Bopp Tape</option>
+            <option value="Cutting Wheels">Cutting Wheels</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Order Type</label>
+          <select class="orderTypeSelect">
+            <option value="">Select</option>
+            <option value="Bill">Bill</option>
+            <option value="NC">NC</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Rate Type <span class="sub">Basic / Net</span></label>
+          <select class="rateTypeSelect">
+            <option value="">Select</option>
+            <option value="Basic">Basic Rate</option>
+            <option value="Net">Netrate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="rateLabel">Rate</label>
+          <input type="number" class="rateValue" step="0.01" placeholder="Enter rate">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Basic Rate (Auto)</label>
+          <input type="number" class="basicRateValue" readonly placeholder="Auto from Netrate">
+        </div>
+      </div>
+
+      <div class="row row-manual">
+        <div class="field" style="flex:1 1 260px">
+          <label>
+            <span>Enter Total Qty Manually</span>
+            <span class="sub">Skip sizes</span>
+          </label>
+          <div class="manualToggleBar">
+            <div class="manualToggleWrapper">
+              <input type="checkbox" class="manualQtyToggle">
+              <span class="manualToggleCaption">Auto / Manual</span>
+            </div>
+            <div class="manualModeHint">
+              <span class="hint-auto">This is only for Sauda Booking (sizes not required).</span>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="manualQtyLabel">Manual Total Qty</label>
+          <input type="number" class="manualQtyValue" step="0.001" placeholder="0" disabled>
+          <div class="note manualNote"></div>
+        </div>
+      </div>
+
+      <table class="itemTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Size</th><th class="perHeader">Per (Kg / Qty)</th><th class="mtCol">MT</th><th>Nos</th><th>Total Item Qty</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="5" class="itemTotalLabel">Total Item Qty</td><td class="itemTotalCell">0.000</td></tr>
+        </tfoot>
+      </table>
+      <div class="sizes-footer">
+        <button type="button" class="btn-small addSizeBtn">+ Add Size</button>
+        <button type="button" class="btn-small resetSizeBtn" style="background:#6b7280;">↺ Reset Sizes</button>
+      </div>
+    `;
+
+    const itemTypeSelect=card.querySelector('.itemTypeSelect');
+    const orderTypeSelect=card.querySelector('.orderTypeSelect');
+    const rateTypeSelect=card.querySelector('.rateTypeSelect');
+    const rateLabel=card.querySelector('.rateLabel');
+    const rateInput=card.querySelector('.rateValue');
+    const basicRateInput=card.querySelector('.basicRateValue');
+    const itemTotalLabel=card.querySelector('.itemTotalLabel');
+    const perHeader=card.querySelector('.perHeader');
+    const manualToggle=card.querySelector('.manualQtyToggle');
+    const manualInput=card.querySelector('.manualQtyValue');
+    const manualLabel=card.querySelector('.manualQtyLabel');
+    const manualNote=card.querySelector('.manualNote');
+    const table=card.querySelector('.itemTable');
+
+    function resetCardForNewItem(){
+      manualToggle.checked = false;
+      manualInput.disabled = true;
+      manualInput.value = '';
+      table.classList.remove('table-disabled');
+
+      const tbody = card.querySelector('tbody');
+      tbody.innerHTML = '';
+      addSizeRow(card);
+      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
+      card.querySelector('.itemTotalCell').textContent = '0.000';
+      basicRateInput.value = '';
+      updateEffectiveTotalQty();
+    }
+
+    // BASIC RATE AUTO CALC — FIXED ROUNDING
+    function updateBasicRate(){
+      const item = itemTypeSelect.value;
+      const orderType = orderTypeSelect.value;
+      const rateType = rateTypeSelect.value;
+      const net = num(rateInput.value);
+
+      if(!(item === 'Sq. Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire')){
+        basicRateInput.value = '';
+        return;
+      }
+
+      if(rateType !== 'Net' || !net){
+        basicRateInput.value = '';
+        return;
+      }
+
+      if(orderType !== 'Bill' && orderType !== 'NC'){
+        basicRateInput.value = '';
+        return;
+      }
+
+      let basic;
+
+      if(item === 'Binding Wire'){
+        basic = (net / 1.18) - 160;
+      } else {
+        if(orderType === 'Bill'){
+          basic = (net / 1.18) - 160;
+        } else { // NC
+          basic = (net / 1.18) - 160 + 3000;
+        }
+      }
+
+      // 🔧 FIX: Round to rupee, NOT to nearest 100
+      basicRateInput.value = Math.round(basic);
+    }
+
+    function updateLabels(){
+      const item=itemTypeSelect.value;
+      const rt=rateTypeSelect.value;
+      const rateWord=rt==='Basic'?'Basic Rate':rt==='Net'?'Netrate':'Rate';
+      rateLabel.textContent=item?`${item} ${rateWord}`:rateWord;
+
+      const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
+      const isBinding=(item==='Binding Wire');
+      const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
+      const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
+
+      const headRow=card.querySelector('.itemTable thead tr');
+      const mtCols=card.querySelectorAll('.mtCol');
+      const labelCell=card.querySelector('tfoot .itemTotalLabel');
+
+      const perHeaderCell = headRow.children[2];
+      const nosHeader = headRow.children[4];
+
+      perHeaderCell.style.display='';
+      nosHeader.style.display='';
+
+      if(isPieces){
+        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (Pcs)`;
+        perHeader.textContent='Pcs';
+        headRow.children[4].textContent='Per Box';
+        manualLabel.textContent='Manual Total Qty (Pcs)';
+        manualInput.step='1';
+        manualNote.textContent='Pieces do not add to Effective Total Qty (MT).';
+      }else if(isBinding){
+        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
+        perHeader.textContent='Kg';
+        headRow.children[4].textContent='Bundle';
+        manualLabel.textContent='Manual Total Qty (MT)';
+        manualInput.step='0.001';
+        manualNote.textContent='';
+      }else{
+        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
+        perHeader.textContent='Per (Kg / Qty)';
+        headRow.children[4].textContent='Nos';
+        manualLabel.textContent='Manual Total Qty (MT)';
+        manualInput.step='0.001';
+        manualNote.textContent='';
+      }
+
+      const showMT = isDirectMT || isMTOnly;
+      mtCols.forEach(c=>c.style.display=showMT?'table-cell':'none');
+
+      card.querySelectorAll('tbody tr').forEach(row=>{
+        const perTd = row.children[2];
+        const mtTd = row.children[3];
+        const nosTd = row.children[4];
+        const nosInput = row.querySelector('.nosInput');
+        const weightInput = row.querySelector('.weightInput');
+
+        if(isMTOnly){
+          perHeaderCell.style.display='none';
+          if(perTd) perTd.style.display='none';
+          if(weightInput) weightInput.disabled=true;
+
+          nosHeader.style.display='none';
+          if(nosTd) nosTd.style.display='none';
+          if(nosInput) nosInput.disabled=true;
+
+          if(mtTd) mtTd.style.display='table-cell';
+        }else{
+          if(perTd) perTd.style.display='table-cell';
+          if(weightInput) weightInput.disabled=false;
+
+          nosHeader.style.display='';
+          if(nosTd) nosTd.style.display='table-cell';
+          if(nosInput) nosInput.disabled=false;
+        }
+      });
+
+      if(isMTOnly){
+        labelCell.colSpan = 3;
+      }else if(showMT){
+        labelCell.colSpan = 5;
+      }else{
+        labelCell.colSpan = 4;
+      }
+
+      recalcItemTotals(card); 
+      updateEffectiveTotalQty();
+      updateBasicRate();
+    }
+    card.__updateLabels = updateLabels;
+
+    function applyManualMode(){
+      if(manualToggle.checked){
+        manualInput.disabled=false;
+        table.classList.add('table-disabled');
+      }else{
+        manualInput.disabled=true;
+        manualInput.value='';
+        table.classList.remove('table-disabled');
+      }
+      recalcItemTotals(card); updateEffectiveTotalQty();
+    }
+
+    manualToggle.addEventListener('change',applyManualMode);
+    manualInput.addEventListener('input',()=>{recalcItemTotals(card);updateEffectiveTotalQty();});
+
+    itemTypeSelect.addEventListener('change', ()=>{
+      resetCardForNewItem();
+      updateLabels();
+      updateBasicRate();
+    });
+
+    rateTypeSelect.addEventListener('change',()=>{
+      updateLabels();
+      updateBasicRate();
+    });
+
+    orderTypeSelect.addEventListener('change',()=>{
+      updateBasicRate();
+    });
+
+    rateInput.addEventListener('input',()=>{
+      updateBasicRate();
+    });
+
+    addSizeRow(card);
+
+    card.querySelector('.addSizeBtn').addEventListener('click',()=>{
+      addSizeRow(card);
+      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
+    });
+
+    card.querySelector('.resetSizeBtn').addEventListener('click', () => {
+      const tbody = card.querySelector('tbody');
+      tbody.innerHTML = '';
+      addSizeRow(card);
+      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
+      recalcItemTotals(card);
+      updateEffectiveTotalQty();
+    });
+
+    card.querySelector('.removeItemBtn').addEventListener('click',()=>{
+      itemsContainer.removeChild(card);
+      renumberCards();
+      updateEffectiveTotalQty();
+    });
+
+    updateLabels();
+    return card;
+  }
+
+  function updateLabelsForCard(card){
+    if(typeof card.__updateLabels==='function'){ card.__updateLabels(); }
+  }
+
+  function recalcItemTotals(card){
+    const item=card.querySelector('.itemTypeSelect').value;
+    const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
+    const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
+    const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
+    const manualOn=card.querySelector('.manualQtyToggle').checked;
+    const manualVal=num(card.querySelector('.manualQtyValue').value);
+    let total=0;
+
+    if(manualOn){
+      total = manualVal || 0;
+    }else{
+      card.querySelectorAll('tbody tr').forEach(row=>{
+        const per=num(row.querySelector('.weightInput').value);
+        const nosInput=row.querySelector('.nosInput');
+        const mtInput=row.querySelector('.mtInput');
+        const totalInput=row.querySelector('.totalInput');
+
+        if(isMTOnly && mtInput){
+          const mtVal = num(mtInput.value);
+          totalInput.value = mtVal ? mtVal.toFixed(3) : '';
+          total += mtVal || 0;
+          return;
+        }
+
+        let mtVal=0, nosVal=num(nosInput.value);
+
+        if(isDirectMT && mtInput){
+          const last = row.dataset.lastEdited || 'nos';
+          const mtTypedStr = mtInput.value;
+          const mtTyped = num(mtTypedStr);
+
+          if(last === 'mt'){
+            if(mtTypedStr !== '' && per>0){
+              const rawNos = (mtTyped*1000)/per;
+              nosVal = Math.ceil(rawNos - 1e-9);
+              nosInput.value = nosVal || '';
+              mtVal = mtTyped;
+            }else{
+              mtVal = 0;
+              totalInput.value = '';
+            }
+          }else{
+            const raw = per * nosVal;
+            mtVal = raw/1000;
+            mtInput.value = mtVal ? mtVal.toFixed(3) : '';
+          }
+
+          totalInput.value = mtVal ? mtVal.toFixed(3) : '';
+          total += mtVal || 0;
+        }else{
+          const raw = per * nosVal;
+          const display = isPieces ? raw : raw/1000;
+          totalInput.value = display ? (isPieces ? raw : display.toFixed(3)) : '';
+          total += display || 0;
+        }
+      });
+    }
+    card.querySelector('.itemTotalCell').textContent=total.toFixed(3);
+  }
+
+  function computeAllItemsTotal(){
+    let sum=0;
+    document.querySelectorAll('.item-card').forEach(card=>{
+      const item=card.querySelector('.itemTypeSelect').value;
+      if(!item) return;
+      if(item==='Bopp Tape'||item==='Cutting Wheels') return;
+      sum += num(card.querySelector('.itemTotalCell').textContent);
+    });
+    return sum;
+  }
+  function updateEffectiveTotalQty(){ totalQtyHeader.value = computeAllItemsTotal().toFixed(3); }
+
+  function addItemCard(){
+    const existing=document.querySelectorAll('.item-card').length;
+    if(existing>=MAX_ITEMS){alert(`You can add maximum ${MAX_ITEMS} items.`);return null;}
+    const card=createItemCard(existing+1);
+    itemsContainer.appendChild(card);
+    return card;
+  }
+  function renumberCards(){
+    document.querySelectorAll('.item-card').forEach((c,i)=>{
+      c.querySelector('.item-index-chip').textContent=i+1;
+      c.querySelector('.item-label-title').textContent=`Item #${i+1}`;
+    });
+  }
+
+  addItemBtn.addEventListener('click',addItemCard);
+  addItemCard();
+
+  function buildWhatsAppMessage(){
+    const bookingDate=document.getElementById('bookingDate').value||'-';
+    const firmName=document.getElementById('firmName').value||'-';
+    const remarks=document.getElementById('remarks').value||'';
+    const effQty=totalQtyHeader.value||'0';
+
+    let msg=`*Sauda Booking*\nDate: ${bookingDate}\nFirm: ${firmName}\nTotal Items Qty (MT): ${effQty}\n`;
+
+    document.querySelectorAll('.item-card').forEach((card,idx)=>{
+      const item=card.querySelector('.itemTypeSelect').value||'-';
+      const orderType=card.querySelector('.orderTypeSelect').value||'-';
+      const rateType=card.querySelector('.rateTypeSelect').value||'-';
+      const rate=card.querySelector('.rateValue').value||'-';
+      const basicRate=card.querySelector('.basicRateValue').value||'';
+      const total=card.querySelector('.itemTotalCell').textContent||'0';
+      const manualOn=card.querySelector('.manualQtyToggle').checked;
+      const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
+      const suffix=isPieces?'Pcs':'MT';
+      if(item==='-'&&rate==='-'&&Number(total)===0) return;
+
+      msg+=`\n*Item #${idx+1}*\n`+
+           `Item: ${item}\n`+
+           `Order Type: ${orderType}\n`+
+           `Rate Type: ${rateType==='Basic'?'Basic Rate':rateType==='Net'?'Netrate':rateType}\n`+
+           `Rate: ${rate}\n`;
+
+      if(basicRate){
+        msg+=`Basic Rate (Auto): ${basicRate}\n`;
+      }
+
+      msg+=`Total ${item} Qty: ${total} ${suffix}\n`;
+
+      if(!manualOn){
+        const lines=[];
+        card.querySelectorAll('tbody tr').forEach(r=>{
+          const size=r.querySelector('.sizeInput').value;
+          const per=r.querySelector('.weightInput').value;
+          const mt=r.querySelector('.mtInput')?r.querySelector('.mtInput').value:'';
+          const n=r.querySelector('.nosInput').value;
+          const t=r.querySelector('.totalInput').value;
+          if(size||per||n||t||mt){
+            const perLbl=isPieces?'Pcs':'Per';
+            const nosLbl=isPieces?'Per Box':'Nos';
+            const mtPart=(mt && !isPieces)?` | MT:${mt}`:'';
+            lines.push(`${size||'-'} | ${perLbl}:${per||0}${mtPart} × ${nosLbl}:${n||0} = ${t||0}`);
+          }
+        });
+        if(lines.length){ msg+=`*Details:*\n`+lines.map(l=>`- ${l}`).join('\n')+'\n'; }
+      }else{
+        msg+=`_Entered manually_\n`;
+      }
+    });
+
+    if(remarks.trim()) msg+=`\nRemarks:\n${remarks}`;
+    return msg;
+  }
+
+  function shareOnWhatsApp(){
+    const dRaw=bookingDateEl.value.trim();
+    if(!dRaw){alert('Please select Booking Date.');return;}
+    const chosen=new Date(dRaw); chosen.setHours(0,0,0,0);
+    const today=new Date(); today.setHours(0,0,0,0);
+    if(chosen>today){
+      alert('Booking Date cannot be in the future.');
+      bookingDateEl.value=isoDateOnly(today);
+      bookingDateEl.focus(); return;
+    }
+
+    const f=document.getElementById('firmName').value.trim();
+    if(!f){alert('Please enter Firm Name.');return;}
+
+    let missingOrderType=false;
+    document.querySelectorAll('.item-card').forEach(card=>{
+      const item=card.querySelector('.itemTypeSelect').value.trim();
+      const orderType=card.querySelector('.orderTypeSelect').value.trim();
+      const total=num(card.querySelector('.itemTotalCell').textContent||0);
+      if(item && total>0 && !orderType){
+        missingOrderType=true;
+      }
+    });
+    if(missingOrderType){
+      alert('Please select Order Type (Bill / NC) for all items with quantity.');
+      return;
+    }
+
+    const message=buildWhatsAppMessage();
+    const encoded=encodeURIComponent(message);
+    const url=`https://wa.me/?text=${encoded}`;
+    window.open(url,'_blank');
+  }
+
+  function resetForm(){
+    if(!confirm('Clear all data?')) return;
+    document.querySelectorAll('input,textarea,select').forEach(el=>{
+      if(el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
+    });
+    itemsContainer.innerHTML='';
+    addItemCard();
+    const today=new Date();
+    bookingDateEl.max=isoDateOnly(today);
+    bookingDateEl.value=isoDateOnly(today);
+    totalQtyHeader.value='';
+  }
+
+  window.shareOnWhatsApp = shareOnWhatsApp;
+  window.resetForm = resetForm;
+</script>
+</body>
+</html>
