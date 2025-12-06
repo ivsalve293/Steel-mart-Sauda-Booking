@@ -68,11 +68,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     font-weight: 700;
     font-size: 15px;
     color: #b91c1c;
-
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     transition:
       transform 0.25s ease,
@@ -977,14 +975,14 @@
       updateEffectiveTotalQty();
     }
 
-    // BASIC RATE AUTO CALC — FIXED ROUNDING
+    // BASIC RATE AUTO CALC
     function updateBasicRate(){
       const item = itemTypeSelect.value;
       const orderType = orderTypeSelect.value;
       const rateType = rateTypeSelect.value;
       const net = num(rateInput.value);
 
-      if(!(item === 'Sq. Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire')){
+      if(!(item === 'Sq. Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire' || item === 'Nails')){
         basicRateInput.value = '';
         return;
       }
@@ -1001,7 +999,7 @@
 
       let basic;
 
-      if(item === 'Binding Wire'){
+      if(item === 'Binding Wire' || item === 'Nails'){
         basic = (net / 1.18) - 160;
       } else {
         if(orderType === 'Bill'){
@@ -1011,7 +1009,6 @@
         }
       }
 
-      // 🔧 FIX: Round to rupee, NOT to nearest 100
       basicRateInput.value = Math.round(basic);
     }
 
@@ -1025,6 +1022,7 @@
       const isBinding=(item==='Binding Wire');
       const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
       const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
+      const isNails=(item==='Nails');
 
       const headRow=card.querySelector('.itemTable thead tr');
       const mtCols=card.querySelectorAll('.mtCol');
@@ -1039,14 +1037,28 @@
       if(isPieces){
         itemTotalLabel.textContent=`Total ${item||'Item'} Qty (Pcs)`;
         perHeader.textContent='Pcs';
-        headRow.children[4].textContent='Per Box';
+        headRow.children[4].textContent='Pcs/Box';
         manualLabel.textContent='Manual Total Qty (Pcs)';
         manualInput.step='1';
         manualNote.textContent='Pieces do not add to Effective Total Qty (MT).';
       }else if(isBinding){
         itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
         perHeader.textContent='Kg';
-        headRow.children[4].textContent='Bundle';
+        headRow.children[4].textContent='Bundles';
+        manualLabel.textContent='Manual Total Qty (MT)';
+        manualInput.step='0.001';
+        manualNote.textContent='';
+      }else if(isDirectMT){
+        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
+        perHeader.textContent='Kg/6 mtr';
+        headRow.children[4].textContent='Nos';
+        manualLabel.textContent='Manual Total Qty (MT)';
+        manualInput.step='0.001';
+        manualNote.textContent='';
+      }else if(isNails){
+        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
+        perHeader.textContent='Kg';
+        headRow.children[4].textContent='Bags';
         manualLabel.textContent='Manual Total Qty (MT)';
         manualInput.step='0.001';
         manualNote.textContent='';
@@ -1059,7 +1071,7 @@
         manualNote.textContent='';
       }
 
-      const showMT = isDirectMT || isMTOnly;
+      const showMT = isDirectMT || isMTOnly || isBinding || isNails;
       mtCols.forEach(c=>c.style.display=showMT?'table-cell':'none');
 
       card.querySelectorAll('tbody tr').forEach(row=>{
@@ -1172,6 +1184,8 @@
     const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
     const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
     const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
+    const isBinding=(item==='Binding Wire');
+    const isNails=(item==='Nails');
     const manualOn=card.querySelector('.manualQtyToggle').checked;
     const manualVal=num(card.querySelector('.manualQtyValue').value);
     let total=0;
@@ -1194,7 +1208,7 @@
 
         let mtVal=0, nosVal=num(nosInput.value);
 
-        if(isDirectMT && mtInput){
+        if((isDirectMT || isBinding || isNails) && mtInput){
           const last = row.dataset.lastEdited || 'nos';
           const mtTypedStr = mtInput.value;
           const mtTyped = num(mtTypedStr);
@@ -1257,60 +1271,108 @@
   addItemBtn.addEventListener('click',addItemCard);
   addItemCard();
 
-  function buildWhatsAppMessage(){
-    const bookingDate=document.getElementById('bookingDate').value||'-';
-    const firmName=document.getElementById('firmName').value||'-';
-    const remarks=document.getElementById('remarks').value||'';
-    const effQty=totalQtyHeader.value||'0';
+  // ---------- WHATSAPP MESSAGE BUILDER ----------
+  function buildWhatsAppMessage() {
 
-    let msg=`*Sauda Booking*\nDate: ${bookingDate}\nFirm: ${firmName}\nTotal Items Qty (MT): ${effQty}\n`;
+    const bookingDate = document.getElementById('bookingDate').value || '-';
+    const firmName    = document.getElementById('firmName').value || '-';
+    const remarks     = document.getElementById('remarks').value || '';
+    const effQty      = totalQtyHeader.value || '0';
 
-    document.querySelectorAll('.item-card').forEach((card,idx)=>{
-      const item=card.querySelector('.itemTypeSelect').value||'-';
-      const orderType=card.querySelector('.orderTypeSelect').value||'-';
-      const rateType=card.querySelector('.rateTypeSelect').value||'-';
-      const rate=card.querySelector('.rateValue').value||'-';
-      const basicRate=card.querySelector('.basicRateValue').value||'';
-      const total=card.querySelector('.itemTotalCell').textContent||'0';
-      const manualOn=card.querySelector('.manualQtyToggle').checked;
-      const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
-      const suffix=isPieces?'Pcs':'MT';
-      if(item==='-'&&rate==='-'&&Number(total)===0) return;
+    const SEP = "───────────────────────";
 
-      msg+=`\n*Item #${idx+1}*\n`+
-           `Item: ${item}\n`+
-           `Order Type: ${orderType}\n`+
-           `Rate Type: ${rateType==='Basic'?'Basic Rate':rateType==='Net'?'Netrate':rateType}\n`+
-           `Rate: ${rate}\n`;
+    function formatQty(val, isPcs) {
+      const n = parseFloat(val || 0);
+      return isPcs ? String(n) : n.toFixed(3);
+    }
 
-      if(basicRate){
-        msg+=`Basic Rate (Auto): ${basicRate}\n`;
-      }
+    let msg = "";
+    msg += `Sauda Booking Details\n`;
+    msg += `Date: ${bookingDate}\n\n`;
+    msg += `Firm: ${firmName}\n`;
+    msg += `Effective Total Qty: ${effQty} MT\n`;
+    msg += `${SEP}\n`;
 
-      msg+=`Total ${item} Qty: ${total} ${suffix}\n`;
+    const cards = [...document.querySelectorAll(".item-card")];
 
-      if(!manualOn){
-        const lines=[];
-        card.querySelectorAll('tbody tr').forEach(r=>{
-          const size=r.querySelector('.sizeInput').value;
-          const per=r.querySelector('.weightInput').value;
-          const mt=r.querySelector('.mtInput')?r.querySelector('.mtInput').value:'';
-          const n=r.querySelector('.nosInput').value;
-          const t=r.querySelector('.totalInput').value;
-          if(size||per||n||t||mt){
-            const perLbl=isPieces?'Pcs':'Per';
-            const nosLbl=isPieces?'Per Box':'Nos';
-            const mtPart=(mt && !isPieces)?` | MT:${mt}`:'';
-            lines.push(`${size||'-'} | ${perLbl}:${per||0}${mtPart} × ${nosLbl}:${n||0} = ${t||0}`);
-          }
+    cards.forEach((card, idx) => {
+
+      const item        = card.querySelector(".itemTypeSelect").value;
+      const orderType   = card.querySelector(".orderTypeSelect").value || "-";
+      const rateTypeRaw = card.querySelector(".rateTypeSelect").value || "";
+      const rate        = card.querySelector(".rateValue").value || "";
+      const basicRate   = card.querySelector(".basicRateValue").value || "";
+      const totalStr    = card.querySelector(".itemTotalCell").textContent || "0";
+      const total       = num(totalStr);
+
+      if (!item || total == 0) return;
+
+      const isPcs      = (item === "Bopp Tape" || item === "Cutting Wheels");
+      const unit       = isPcs ? "Pcs" : "MT";
+
+      const rateType =
+        rateTypeRaw === "Basic" ? "Basic Rate" :
+        rateTypeRaw === "Net"   ? "Netrate"    :
+        rateTypeRaw;
+
+      // Header
+      msg += `\nItem #${idx+1} – ${item}\n`;
+      msg += `   Order: *${orderType}*\n`;
+      msg += `   Rate Type: ${rateType}\n`;
+      msg += `   Rate: ${rate}\n`;
+      if (basicRate) msg += `   Basic Rate (Auto): ${basicRate}\n`;
+      msg += `\n`;
+
+      // Collect rows
+      const rows = [...card.querySelectorAll("tbody tr")];
+      const list = [];
+
+      rows.forEach((row, i) => {
+        const sizeRaw = row.querySelector(".sizeInput").value.trim();
+        const perVal  = row.querySelector(".weightInput").value.trim();
+        const nosVal  = row.querySelector(".nosInput").value.trim();
+        const qtyRaw  = row.querySelector(".totalInput").value.trim();
+        if (!sizeRaw && !qtyRaw) return;
+
+        let sizeShort = sizeRaw;
+        const prefix = item + " ";
+        if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
+          sizeShort = sizeRaw.slice(prefix.length);
+        }
+
+        let formula = "";
+        if (isPcs) {
+          formula = `${perVal} × ${nosVal} = ${formatQty(qtyRaw, true)} Pcs`;
+        } else {
+          // 👇 changed: add "kg" after perVal
+          formula = `${perVal}kg × ${nosVal} Nos = ${formatQty(qtyRaw, false)} MT`;
+        }
+
+        list.push({
+          sr: i + 1,
+          size: sizeShort,
+          formula
         });
-        if(lines.length){ msg+=`*Details:*\n`+lines.map(l=>`- ${l}`).join('\n')+'\n'; }
-      }else{
-        msg+=`_Entered manually_\n`;
+      });
+
+      if (!list.length) {
+        msg += `Total Qty: ${formatQty(totalStr, isPcs)} ${unit}\n`;
+        msg += `${SEP}\n`;
+        return;
       }
+
+      // Print simple lines
+      list.forEach(r => {
+        msg += `${r.sr}.  ${r.size} ${r.formula}\n`;
+      });
+
+      msg += `\nTotal Qty: ${formatQty(totalStr, isPcs)} ${unit}\n`;
+      msg += `${SEP}\n`;
     });
 
-    if(remarks.trim()) msg+=`\nRemarks:\n${remarks}`;
+    if (remarks.trim()) msg += `Remarks: ${remarks.trim()}\n`;
+    msg += `\nThank you for your order!`;
+
     return msg;
   }
 
