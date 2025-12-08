@@ -600,10 +600,17 @@
             <label for="bookingDate">Booking Date</label>
             <input type="date" id="bookingDate" required>
           </div>
+
           <div class="field">
             <label for="firmName">Firm Name <span class="sub">Required</span></label>
             <input type="text" id="firmName" placeholder="Enter firm name" required>
           </div>
+
+          <div class="field">
+            <label for="vehicleNumber">Vehicle Number</label>
+            <input type="text" id="vehicleNumber" placeholder="Enter vehicle number">
+          </div>
+
           <div class="field">
             <label for="totalQtyHeader">Effective Total Qty <span class="sub">Auto · MT</span></label>
             <input type="number" id="totalQtyHeader" readonly>
@@ -1247,7 +1254,7 @@
     document.querySelectorAll('.item-card').forEach(card=>{
       const item=card.querySelector('.itemTypeSelect').value;
       if(!item) return;
-      if(item==='Bopp Tape'||item==='Cutting Wheels') return;
+      if(item==='Bopp Tape'||item==='Cutting Wheels') return; // pieces not in MT total
       sum += num(card.querySelector('.itemTotalCell').textContent);
     });
     return sum;
@@ -1271,27 +1278,41 @@
   addItemBtn.addEventListener('click',addItemCard);
   addItemCard();
 
+  // ---------- DATE FORMATTER FOR WHATSAPP (DD/MM/YYYY) ----------
+  function formatDisplayDate(isoStr) {
+    if (!isoStr) return '-';
+    const parts = isoStr.split('-'); // [YYYY, MM, DD]
+    if (parts.length !== 3) return isoStr;
+    const [yyyy, mm, dd] = parts;
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
   // ---------- WHATSAPP MESSAGE BUILDER ----------
   function buildWhatsAppMessage() {
 
-    const bookingDate = document.getElementById('bookingDate').value || '-';
-    const firmName    = document.getElementById('firmName').value || '-';
-    const remarks     = document.getElementById('remarks').value || '';
-    const effQty      = totalQtyHeader.value || '0';
+    const bookingDateRaw = document.getElementById('bookingDate').value || '';
+    const bookingDate    = formatDisplayDate(bookingDateRaw);
+    const firmName       = document.getElementById('firmName').value || '-';
+    const vehicleNumber  = document.getElementById('vehicleNumber').value.trim();
+    const remarks        = document.getElementById('remarks').value || '';
+    const effQty         = totalQtyHeader.value || '0';
 
-    const SEP = "───────────────────────";
+    const SEP = "──────────────────";
 
     function formatQty(val, isPcs) {
       const n = parseFloat(val || 0);
+      if (isNaN(n)) return isPcs ? '0' : '0.000';
       return isPcs ? String(n) : n.toFixed(3);
     }
 
     let msg = "";
-    msg += `Sauda Booking Details\n`;
-    msg += `Date: ${bookingDate}\n\n`;
-    msg += `Firm: ${firmName}\n`;
-    msg += `Effective Total Qty: ${effQty} MT\n`;
-    msg += `${SEP}\n`;
+
+    // HEADER
+    msg += `*Sauda Booking*\n`;
+    msg += `Date: ${bookingDate}\n`;
+    msg += `*Firm: ${firmName}*\n`;
+    if (vehicleNumber) msg += `Vehicle No.: ${vehicleNumber}\n`;
+    msg += `*Total Qty (MT): ${effQty} MT*\n\n`;
 
     const cards = [...document.querySelectorAll(".item-card")];
 
@@ -1307,23 +1328,23 @@
 
       if (!item || total == 0) return;
 
-      const isPcs      = (item === "Bopp Tape" || item === "Cutting Wheels");
-      const unit       = isPcs ? "Pcs" : "MT";
+      const isPcs = (item === "Bopp Tape" || item === "Cutting Wheels");
+      const unit  = isPcs ? "Pcs" : "MT";
 
       const rateType =
         rateTypeRaw === "Basic" ? "Basic Rate" :
         rateTypeRaw === "Net"   ? "Netrate"    :
         rateTypeRaw;
 
-      // Header
-      msg += `\nItem #${idx+1} – ${item}\n`;
-      msg += `   Order: *${orderType}*\n`;
-      msg += `   Rate Type: ${rateType}\n`;
-      msg += `   Rate: ${rate}\n`;
-      if (basicRate) msg += `   Basic Rate (Auto): ${basicRate}\n`;
-      msg += `\n`;
+      // ITEM HEADER BLOCK
+      msg += `*Item #${idx+1}: ${item}*\n`;
+      msg += `Order Type: *${orderType}*\n`;
+      if (rateType) msg += `Rate Type: ${rateType}\n`;
+      if (rate)     msg += `Rate: ${rate}\n`;
+      if (basicRate) msg += `Basic Rate (Auto): ${basicRate}\n`;
+      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n\n`;
 
-      // Collect rows
+      // DETAILS
       const rows = [...card.querySelectorAll("tbody tr")];
       const list = [];
 
@@ -1332,8 +1353,10 @@
         const perVal  = row.querySelector(".weightInput").value.trim();
         const nosVal  = row.querySelector(".nosInput").value.trim();
         const qtyRaw  = row.querySelector(".totalInput").value.trim();
+
         if (!sizeRaw && !qtyRaw) return;
 
+        // Remove leading "Pipe ", "Angle " etc from size if present
         let sizeShort = sizeRaw;
         const prefix = item + " ";
         if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
@@ -1342,10 +1365,14 @@
 
         let formula = "";
         if (isPcs) {
-          formula = `${perVal} × ${nosVal} = ${formatQty(qtyRaw, true)} Pcs`;
+          // pieces
+          formula = `${perVal} x ${nosVal} = ${formatQty(qtyRaw, true)} Pcs`;
         } else {
-          // 👇 changed: add "kg" after perVal
-          formula = `${perVal}kg × ${nosVal} Nos = ${formatQty(qtyRaw, false)} MT`;
+          const nosLabel =
+            item === "Binding Wire" ? "Bundles" :
+            item === "Nails"        ? "Bags" :
+            "Nos";
+          formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
         }
 
         list.push({
@@ -1355,22 +1382,28 @@
         });
       });
 
-      if (!list.length) {
-        msg += `Total Qty: ${formatQty(totalStr, isPcs)} ${unit}\n`;
-        msg += `${SEP}\n`;
-        return;
+      if (list.length) {
+        msg += `*Details:*\n`;
+        list.forEach(r => {
+          // universal: add item name before size unless size already includes it
+          let sizeText = r.size;
+          const normItem = (item || '').toLowerCase().replace(/[.\s]/g, '');
+          const normSize = (r.size || '').toLowerCase().replace(/[.\s]/g, '');
+          if (normItem && !normSize.startsWith(normItem)) {
+            sizeText = `${item} ${r.size}`;
+          }
+          msg += `${r.sr}. ${sizeText} ${r.formula}\n`;
+        });
+        msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`;
       }
 
-      // Print simple lines
-      list.forEach(r => {
-        msg += `${r.sr}.  ${r.size} ${r.formula}\n`;
-      });
-
-      msg += `\nTotal Qty: ${formatQty(totalStr, isPcs)} ${unit}\n`;
       msg += `${SEP}\n`;
     });
 
-    if (remarks.trim()) msg += `Remarks: ${remarks.trim()}\n`;
+    if (remarks.trim()) {
+      msg += `\n*Remarks:*\n${remarks.trim()}\n`;
+    }
+
     msg += `\nThank you for your order!`;
 
     return msg;
