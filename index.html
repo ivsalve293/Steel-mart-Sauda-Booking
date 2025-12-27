@@ -490,179 +490,135 @@
     }
   }
 
-  /* REPLACE YOUR EXISTING @media (max-width: 640px) BLOCK WITH THIS */
+  /* --- MOBILE VIEW OPTIMIZATION (Strict Vertical Stacking) --- */
   @media (max-width: 640px){
-    body{
-      padding: 0;
-    }
-    .outer-shell{
-      max-width: 100%;
-    }
-    .container{
-      border-radius: 0;
-      box-shadow: none;
-      border: none;
-    }
-    .brand-bar{
-      padding: 12px 16px;
-    }
-    .brand-title h1{
-      font-size: 18px;
-    }
-    .content{
-      padding: 12px 10px 16px;
-    }
-    h2.section-title{
-      font-size: 12px;
-      margin: 12px 0 6px;
-    }
-    .section-shell{
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-    }
-    .row{
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .field{
-      min-width: 100%;
-      flex: 1 1 auto;
-    }
-    .field label{
-      font-size: 11px;
-    }
-    .field input,
-    .field select,
-    .field textarea{
-      font-size: 13px;
-      padding: 9px 12px;
-    }
-    .item-card{
-      padding: 8px 8px 10px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-    }
-    .item-card-header{
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .manualToggleBar{
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-    }
-    .manualModeHint{
-      max-width: 100%;
-    }
-    .suggestion-box{
-      max-width: 90vw;
-      min-width: 60vw;
-    }
-    .btn-row{
-      justify-content: space-between;
-    }
+    body{ padding:0; }
+    .outer-shell{ max-width:100%; }
+    .container{ border-radius:0; box-shadow:none; border:none; }
+    .brand-bar{ padding:12px 16px; }
+    .brand-title h1{ font-size:18px; }
+    .content{ padding:12px 10px 16px; }
+    h2.section-title{ font-size:12px; margin:12px 0 6px; }
+    .section-shell{ padding:10px; border-radius:10px; margin-bottom:8px; }
+    .row{ flexDirection:column; gap:8px; margin-bottom:8px; }
+    .field{ min-width:100%; flex:1 1 auto; }
+    .field label{ font-size:11px; }
+    .field input, .field select, .field textarea{ font-size:13px; padding:9px 12px; }
+    .item-card{ padding:8px 8px 10px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .item-card-header{ flexDirection:row; alignItems:flex-start; gap:6px; }
+    .manualToggleBar{ flexDirection:column; alignItems:flex-start; gap:4px; }
+    .manualModeHint{ maxWidth:100%; }
+    .suggestion-box{ max-width:90vw; min-width:60vw; }
 
-    /* --- NEW MOBILE TABLE STYLES (Vertical Cards) --- */
-    /* This makes the table look like the "Basic Details" form */
-    
-    .itemTable, .itemTable tbody, .itemTable tr, .itemTable td {
-      display: block;
-      width: 100%;
-    }
-    
-    .itemTable thead {
-      display: none; /* Hide the traditional table header */
-    }
-
-    .itemTable tr {
-      background: #ffffff;
-      border: 1px solid #fecaca; /* Matches your theme border */
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+    /* --- SIDE BY SIDE BUTTONS FIX --- */
+    .btn-row{ 
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content:space-between; 
+      flex-wrap: nowrap; /* Prevent wrapping */
+      gap: 6px; /* Tighter gap */
+    }
+    .btn-row button {
+      flex: 1; /* Make all buttons share width equally */
+      padding: 10px 4px; /* Reduce horizontal padding */
+      font-size: 11px; /* Ensure text fits */
+      white-space: nowrap; /* Keep text on one line */
+      min-width: 0; /* Allow shrinking */
+    }
+
+    /* RESET TABLE */
+    .itemTable { display: block; width: 100%; }
+    .itemTable thead { display: none !important; }
+
+    /* --- BODY ROWS (Data Cards) --- */
+    .itemTable tbody, .itemTable tfoot { display: block; width: 100%; }
+
+    .itemTable tbody tr {
+      /* USE FLEX COLUMN to force vertical stack even if JS sets display:table-cell */
+      display: flex !important; 
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
-    .itemTable td {
+    .itemTable tbody td {
+      display: block; /* Override default */
+      width: 100% !important;
       border: none;
-      padding: 0;
+      padding: 0 0 12px 0;
       text-align: left;
     }
-    
-    /* Add labels dynamically above inputs so it looks like a form field */
-    .itemTable td::before {
+    .itemTable tbody td:last-child { padding-bottom: 0; }
+
+    /* LABELS ABOVE INPUTS - ONLY FOR TBODY */
+    .itemTable tbody td::before {
       display: block;
-      font-size: 11px; /* Matches your Basic Details label size */
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 4px;
-      content: attr(data-label); /* Fallback */
-    }
-
-    /* Column Specific Styling to create a grid inside the card */
-
-    /* Index (#) - Hidden or Small */
-    .itemTable td:nth-child(1) {
-      width: 100%;
       font-size: 11px;
-      color: #b91c1c;
-      border-bottom: 1px dashed #fee2e2;
-      margin-bottom: 6px;
-      padding-bottom: 4px;
       font-weight: 700;
+      color: #9f1239;
+      margin-bottom: 4px;
+      text-transform: uppercase;
     }
-    .itemTable td:nth-child(1)::before { content: "Entry #"; display: inline; color: #6b7280; font-weight: normal; margin-right:4px; }
 
-    /* Size - Full Width */
-    .itemTable td:nth-child(2) { width: 100%; }
-    .itemTable td:nth-child(2)::before { content: "Size"; }
-
-    /* Weight/Per - 50% Width */
-    .itemTable td:nth-child(3) { width: calc(50% - 5px); }
-    .itemTable td:nth-child(3)::before { content: "Per (Wt/Rate)"; }
-
-    /* MT (if visible) - Full Width */
-    .itemTable td:nth-child(4) { width: 100%; }
-    .itemTable td.mtCol::before { content: "MT"; }
-
-    /* Nos - 50% Width (sits next to Weight) */
-    .itemTable td:nth-child(5) { width: calc(50% - 5px); }
-    .itemTable td:nth-child(5)::before { content: "Nos / Qty"; }
-
-    /* Total - Full Width at bottom */
-    .itemTable td:nth-child(6) { width: 100%; margin-top: 4px; }
-    .itemTable td:nth-child(6)::before { content: "Row Total"; color: #b91c1c; }
+    /* SPECIFIC LABELS */
+    .itemTable tbody td:nth-child(1) { border-bottom: 1px dashed #fee2e2; margin-bottom: 8px; padding-bottom: 8px; font-weight: 700; color: #374151; }
+    .itemTable tbody td:nth-child(1)::before { content: "#"; display: inline-block; margin-right: 6px; color: #6b7280; font-weight: normal; }
     
-    /* Input Styling to match Basic Details */
+    .itemTable tbody td:nth-child(2)::before { content: "Size"; }
+    .itemTable tbody td:nth-child(3)::before { content: "Per (Kg / Qty)"; }
+    .itemTable tbody td.mtCol::before { content: "MT"; }
+    .itemTable tbody td:nth-child(5)::before { content: "Nos"; }
+    .itemTable tbody td:nth-child(6)::before { content: "Total Item Qty"; }
+
+    /* INPUT STYLING */
     .itemTable input {
       width: 100%;
-      background: #fef2f2; /* Light pink bg from Basic Details */
+      padding: 10px 12px;
+      background: #f9fafb;
       border: 1px solid #d1d5db;
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-size: 13px;
+      border-radius: 8px;
+      font-size: 14px;
     }
     .itemTable input:focus {
-      background: #ffffff;
+      background: #fff;
       border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
       outline: none;
     }
 
-    /* Footer buttons */
-    .sizes-footer {
+    /* --- FOOTER ROW (TOTAL SUMMARY) --- */
+    .itemTable tfoot tr {
+      background: #374151; /* Dark Grey Summary Bar */
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex !important;
       flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
-    .sizes-footer button {
-      flex: 1;
-      justify-content: center;
-      padding: 10px;
+    
+    /* Footer Cells: remove blocking/width forces */
+    .itemTable tfoot td {
+      display: block !important;
+      width: auto !important;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-weight: 700;
     }
+    
+    /* HIDE LABELS IN FOOTER */
+    .itemTable tfoot td::before { content: none !important; }
+
+    /* Footer buttons */
+    .sizes-footer { gap: 10px; }
+    .sizes-footer button { flex: 1; padding: 12px; justify-content: center; }
   }
 </style>
 </head>
@@ -1540,8 +1496,30 @@
     window.open(url,'_blank');
   }
 
+  // --- AUTO-SAVE FEATURE ---
+  // Save Firm and Vehicle details to browser storage on change
+  const saveFields = ['firmName', 'vehicleNumber', 'remarks'];
+
+  saveFields.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      // Load saved value on startup
+      const saved = localStorage.getItem('sauda_' + id);
+      if(saved) el.value = saved;
+
+      // Save on input
+      el.addEventListener('input', () => {
+        localStorage.setItem('sauda_' + id, el.value);
+      });
+    }
+  });
+
   function resetForm(){
-    if(!confirm('Clear all data?')) return;
+    if(!confirm('Clear all data and saved history?')) return;
+    
+    // Clear localStorage
+    saveFields.forEach(id => localStorage.removeItem('sauda_' + id));
+
     document.querySelectorAll('input,textarea,select').forEach(el=>{
       if(el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
     });
