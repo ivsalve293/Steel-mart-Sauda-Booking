@@ -319,7 +319,6 @@
     box-shadow:0 8px 18px rgba(15,23,42,.6);
   }
   
-  /* NEW BUTTON STYLE FOR SUMMARY */
   .btn-teal {
     font-size:13px;
     padding:8px 16px;
@@ -328,12 +327,12 @@
     box-shadow:0 8px 18px rgba(13,148,136,.55);
   }
 
-  .btn-chip:hover, .btn-small:hover, .btn-primary:hover, .btn-secondary:hover, .btn-teal:hover{
+  .btn-chip:hover, .btn-small:hover, .btn-primary:hover, .btn-secondary:hover, .btn-teal:hover {
     transform:translateY(-1px) scale(1.03);
     box-shadow:0 10px 24px rgba(15,23,42,.35);
     opacity:0.96;
   }
-  .btn-chip:active, .btn-small:active, .btn-primary:active, .btn-secondary:active, .btn-teal:active{
+  .btn-chip:active, .btn-small:active, .btn-primary:active, .btn-secondary:active, .btn-teal:active {
     transform:translateY(1px) scale(0.97);
     box-shadow:0 4px 10px rgba(15,23,42,.35);
     opacity:0.9;
@@ -472,6 +471,11 @@
     font-size:12px;
     color:#b91c1c;
   }
+  
+  /* LOADER */
+  #loaderOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+  .spinner { width: 50px; height: 50px; border: 4px solid rgba(220,38,38,0.2); border-left-color: #dc2626; border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 900px){
     body{
@@ -490,7 +494,7 @@
     }
   }
 
-  /* --- MOBILE VIEW OPTIMIZATION (Strict Vertical Stacking) --- */
+  /* --- MOBILE VIEW OPTIMIZATION --- */
   @media (max-width: 640px){
     body{ padding:0; }
     .outer-shell{ max-width:100%; }
@@ -510,30 +514,24 @@
     .manualModeHint{ maxWidth:100%; }
     .suggestion-box{ max-width:90vw; min-width:60vw; }
 
-    /* --- SIDE BY SIDE BUTTONS FIX --- */
     .btn-row{ 
       display: flex;
       justify-content:space-between; 
-      flex-wrap: nowrap; /* Prevent wrapping */
-      gap: 6px; /* Tighter gap */
+      flex-wrap: wrap; 
+      gap: 6px;
     }
     .btn-row button {
-      flex: 1; /* Make all buttons share width equally */
-      padding: 10px 4px; /* Reduce horizontal padding */
-      font-size: 11px; /* Ensure text fits */
-      white-space: nowrap; /* Keep text on one line */
-      min-width: 0; /* Allow shrinking */
+      flex: 1 1 45%; 
+      padding: 10px 4px; 
+      font-size: 11px; 
+      white-space: nowrap; 
     }
 
-    /* RESET TABLE */
     .itemTable { display: block; width: 100%; }
     .itemTable thead { display: none !important; }
-
-    /* --- BODY ROWS (Data Cards) --- */
     .itemTable tbody, .itemTable tfoot { display: block; width: 100%; }
 
     .itemTable tbody tr {
-      /* USE FLEX COLUMN to force vertical stack even if JS sets display:table-cell */
       display: flex !important; 
       flex-direction: column;
       background: #ffffff;
@@ -545,15 +543,13 @@
     }
     
     .itemTable tbody td {
-      display: block; /* Override default */
+      display: block;
       width: 100% !important;
       border: none;
       padding: 0 0 12px 0;
       text-align: left;
     }
     .itemTable tbody td:last-child { padding-bottom: 0; }
-
-    /* LABELS ABOVE INPUTS - ONLY FOR TBODY */
     .itemTable tbody td::before {
       display: block;
       font-size: 11px;
@@ -563,7 +559,6 @@
       text-transform: uppercase;
     }
 
-    /* SPECIFIC LABELS */
     .itemTable tbody td:nth-child(1) { border-bottom: 1px dashed #fee2e2; margin-bottom: 8px; padding-bottom: 8px; font-weight: 700; color: #374151; }
     .itemTable tbody td:nth-child(1)::before { content: "#"; display: inline-block; margin-right: 6px; color: #6b7280; font-weight: normal; }
     
@@ -573,7 +568,6 @@
     .itemTable tbody td:nth-child(5)::before { content: "Nos"; }
     .itemTable tbody td:nth-child(6)::before { content: "Total Item Qty"; }
 
-    /* INPUT STYLING */
     .itemTable input {
       width: 100%;
       padding: 10px 12px;
@@ -589,9 +583,8 @@
       outline: none;
     }
 
-    /* --- FOOTER ROW (TOTAL SUMMARY) --- */
     .itemTable tfoot tr {
-      background: #374151; /* Dark Grey Summary Bar */
+      background: #374151;
       color: #fff;
       border-radius: 8px;
       padding: 12px 14px;
@@ -602,7 +595,6 @@
       margin-bottom: 8px;
     }
     
-    /* Footer Cells: remove blocking/width forces */
     .itemTable tfoot td {
       display: block !important;
       width: auto !important;
@@ -613,16 +605,18 @@
       font-weight: 700;
     }
     
-    /* HIDE LABELS IN FOOTER */
     .itemTable tfoot td::before { content: none !important; }
-
-    /* Footer buttons */
     .sizes-footer { gap: 10px; }
     .sizes-footer button { flex: 1; padding: 12px; justify-content: center; }
   }
 </style>
 </head>
 <body>
+<div id="loaderOverlay">
+  <div class="spinner"></div>
+  <p style="margin-top:16px; font-weight:700; color:#dc2626;">Loading Live Data...</p>
+</div>
+
 <div class="outer-shell">
   <div class="container">
     <div class="brand-bar">
@@ -689,11 +683,24 @@
 </div>
 
 <script>
+  // --------------------------------------------------------
+  //  CONFIGURATION
+  // --------------------------------------------------------
+  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzcSBboPXwuH-whwxXe8IdaaTqnTgIPBVo_z1aMJNZuzX2KQq12AL-RjH1znoq3MCex/exec"; 
+  // --------------------------------------------------------
+
   const MAX_ITEMS=25;
   const itemsContainer=document.getElementById('itemsContainer');
   const totalQtyHeader=document.getElementById('totalQtyHeader');
   const addItemBtn=document.getElementById('addItemBtn');
   const bookingDateEl=document.getElementById('bookingDate');
+  const loaderOverlay=document.getElementById('loaderOverlay');
+
+  // DYNAMIC DATA VARIABLES
+  let CATEGORY_MAP = {};
+  let ALL_SIZES = [];
+  let ITEM_NAMES = [];
+
   function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
 
   function isoDateOnly(d){
@@ -707,34 +714,87 @@
     bookingDateEl.value=todayStr;
   })();
 
-  const PIPE_SIZES=[{"label":"0.75\" 19x19(1.2)","weight":4},{"label":"0.75\" 19x19(1.6)","weight":5},{"label":"0.75\" 19x19(2.0)","weight":6},{"label":"1\" 25x25(1.2)","weight":6},{"label":"1\" 25x25(1.6)","weight":7},{"label":"1\" 25x25(2.0)","weight":9},{"label":"1\" 25x25(2.5)","weight":11.5},{"label":"1.25\" 32x32(1.2)","weight":7},{"label":"1.25\" 32x32(1.6)","weight":9},{"label":"1.25\" 32x32(2.0)","weight":11},{"label":"1.25\" 32x32(2.5)","weight":15.5},{"label":"1.25\" 32x32(2.9)","weight":17.5},{"label":"1.5\" 38x38(1.2)","weight":8.5},{"label":"1.5\" 38x38(1.6)","weight":11},{"label":"1.5\" 38x38(2.0)","weight":13},{"label":"1.5\" 38x38(2.5)","weight":17},{"label":"1.5\" 38x38(2.9)","weight":19},{"label":"47x47(1.6)","weight":14},{"label":"2\" 50x50(1.2)","weight":11},{"label":"2\" 50x50(1.6)","weight":15},{"label":"2\" 50x50(2.0)","weight":18},{"label":"2\" 50x50(2.5)","weight":23},{"label":"2\" 50x50(2.9)","weight":26},{"label":"2.5\" 60x60(1.6)","weight":17},{"label":"2.5\" 60x60(2.0)","weight":22},{"label":"2.5\" 60x60(2.5)","weight":28},{"label":"3\" 72x72(1.6)","weight":21},{"label":"3\" 72x72(2.0)","weight":27},{"label":"3\" 72x72(2.5)","weight":33},{"label":"3\" 72x72(2.9)","weight":39},{"label":"1.5\" x 0.75\" 40x20(1.2)","weight":7},{"label":"1.5\" x 0.75\" 40x20(1.6)","weight":9},{"label":"1.5\" x 0.75\" 40x20(2.0)","weight":11},{"label":"1.5\" x 0.75\" 40x20(2.5)","weight":15},{"label":"2\" x 1\" 50x25(1.2)","weight":8.5},{"label":"2\" x 1\" 50x25(1.6)","weight":11},{"label":"2\" x 1\" 50x25(2.0)","weight":13},{"label":"2\" x 1\" 50x25(2.5)","weight":18},{"label":"2\" x 1\" 50x25(2.9)","weight":21},{"label":"60x40(1.2)","weight":10},{"label":"60x40(1.6)","weight":14},{"label":"60x40(2.0)","weight":17},{"label":"60x40(2.5)","weight":23},{"label":"60x40(2.9)","weight":27},{"label":"75x25(1.2)","weight":10},{"label":"75x25(1.6)","weight":14},{"label":"75x25(2.0)","weight":17},{"label":"75x25(2.5)","weight":22},{"label":"75x25(2.9)","weight":25},{"label":"80x40(1.6)","weight":17},{"label":"80x40(2.0)","weight":22},{"label":"80x40(2.5)","weight":28},{"label":"80x40(2.9)","weight":31},{"label":"96x48(1.6)","weight":21},{"label":"96x48(2.0)","weight":27},{"label":"96x48(2.5)","weight":33},{"label":"96x48(2.9)","weight":39},{"label":"0.75\" 25OD(1.2)","weight":4},{"label":"0.75\" 25OD(1.6)","weight":5},{"label":"0.75\" 25OD(2.0)","weight":6},{"label":"1\" 33.4OD(1.2)","weight":6},{"label":"1\" 33.4OD(1.6)","weight":7},{"label":"1\" 33.4OD(2.0)","weight":9},{"label":"1\" 33.4OD(2.5)","weight":11.5},{"label":"1.25\" 41OD(1.2)","weight":7},{"label":"1.25\" 41OD(1.6)","weight":9},{"label":"1.25\" 41OD(2.0)","weight":11},{"label":"1.25\" 41OD(2.5)","weight":15.5},{"label":"1.25\" 41OD(2.9)","weight":17.5},{"label":"1.5\" 48.3OD(1.2)","weight":8.5},{"label":"1.5\" 48.3OD(1.6)","weight":11},{"label":"1.5\" 48.3OD(2.0)","weight":13},{"label":"1.5\" 48.3OD(2.5)","weight":17},{"label":"1.5\" 48.3OD(2.9)","weight":20},{"label":"2\" 60.3OD(1.2)","weight":10},{"label":"2\" 60.3OD(1.6)","weight":14},{"label":"2\" 60.3OD(2.0)","weight":17},{"label":"2\" 60.3OD(2.5)","weight":22},{"label":"2\" 60.3OD(2.9)","weight":24},{"label":"2.5\" 76.2OD(1.6)","weight":17},{"label":"2.5\" 76.2OD(2.0)","weight":22},{"label":"2.5\" 76.2OD(2.5)","weight":28},{"label":"3\" 88OD(1.6)","weight":21},{"label":"3\" 88OD(2.0)","weight":27},{"label":"3\" 88OD(2.5)","weight":33},{"label":"3\" 88OD(2.9)","weight":39}];
-  const ANGLE_SIZES=[{"label":"25x3","weight":6.2},{"label":"25x5","weight":10.5},{"label":"32x3","weight":8},{"label":"35x3","weight":10.6},{"label":"35x4","weight":12},{"label":"35x5","weight":14.5},{"label":"40x4","weight":14},{"label":"40x5","weight":18},{"label":"50x4","weight":17.5},{"label":"50x5","weight":21.5},{"label":"50x6","weight":26.6},{"label":"65x5","weight":28.5},{"label":"65x6","weight":34.5}];
-  const CHANNEL_SIZES=[
-    {"label":"75x40 (3\"X1.5\")","weight":36},
-    {"label":"70x35 (3\"X1.5\")","weight":22},
-    {"label":"95x45 (4\" x 2\") (SL)","weight":36},
-    {"label":"100x50 (4\" x 2\")","weight":56}
-  ];
+  // --- FETCH LIVE DATA & EXTRACT WEIGHT FROM LABEL ---
+  async function fetchLiveItems() {
+    try {
+        if(!SHEET_API_URL || SHEET_API_URL.includes("PASTE_YOUR")) {
+            console.warn("API URL not set. Using fallback logic if needed.");
+            return;
+        }
 
-  const SQBAR_SIZES=[{"label":"Sq.Bar 08MM","weight":3},{"label":"Sq.Bar 10MM","weight":4.8},{"label":"Sq.Bar 12MM","weight":7}];
-  const ROUNDBAR_SIZES=[{"label":"Round Bar 08MM","weight":4.2},{"label":"Round Bar 10MM","weight":3.6},{"label":"Round Bar 12MM","weight":6},{"label":"Round Bar 16MM","weight":9.6}];
-  const FLAT_SIZES=[{"label":"20x5","weight":4.8},{"label":"25x3","weight":3.8},{"label":"25x5","weight":6},{"label":"32x5","weight":8},{"label":"40x3","weight":5.5},{"label":"40x5","weight":9.8},{"label":"50x5","weight":12},{"label":"40x6","weight":11.6},{"label":"50x6","weight":13}];
+        const response = await fetch(SHEET_API_URL); // GET request
+        if (!response.ok) throw new Error("Network response was not ok");
+        const jsonResponse = await response.json();
+        
+        const rawItems = jsonResponse.items || [];
+        
+        // Reset Data
+        CATEGORY_MAP = {};
+        ALL_SIZES = [];
+        ITEM_NAMES = [];
 
-  const BINDINGWIRE_SIZES=[{"label":"18G 25KG","weight":25},{"label":"18G 10KG","weight":10},{"label":"20G 25KG","weight":25},{"label":"20G 10KG","weight":10}];
-  const NAILS_SIZES=[{"label":"20KG Packing","weight":20}];
-  const BOPP_SIZES=[{"label":"84 MM (36 Piece)","weight":36},{"label":"48 MM (72 Piece)","weight":72}];
-  const CUTTING_SIZES=[{"label":"4\" (50 Piece) Black","weight":50},{"label":"4\" (50 Piece) Brown","weight":50},{"label":"14\" (25 Piece) Green","weight":25},{"label":"14\" (25 Piece) Black","weight":25}];
+        rawItems.forEach(group => {
+            const itemName = group.name;
+            if (!itemName) return;
 
-  const CATEGORY_MAP = {
-    'Pipe': PIPE_SIZES, 'Angle': ANGLE_SIZES, 'Channel': CHANNEL_SIZES,
-    'Sq. Bar': SQBAR_SIZES, 'Round Bar': ROUNDBAR_SIZES, 'Flat': FLAT_SIZES,
-    'Binding Wire': BINDINGWIRE_SIZES, 'Nails': NAILS_SIZES, 'Bopp Tape': BOPP_SIZES,
-    'Cutting Wheels': CUTTING_SIZES
-  };
-  const ALL_SIZES = Object.entries(CATEGORY_MAP).flatMap(([cat, arr]) =>
-    arr.map(o => ({ itemType: cat, label: o.label, weight: o.weight }))
-  );
+            ITEM_NAMES.push(itemName);
+            CATEGORY_MAP[itemName] = [];
 
+            if (group.sizes && Array.isArray(group.sizes)) {
+                group.sizes.forEach(s => {
+                    // EXTRACT WEIGHT LOGIC:
+                    // Looks at the end of the label for a number (e.g. "0.75" 19x19(1.2) 4")
+                    let weight = 0;
+                    if (s.label) {
+                        const matches = s.label.trim().match(/[\s]+(\d+(\.\d+)?)$/);
+                        if (matches && matches[1]) {
+                            weight = parseFloat(matches[1]);
+                        }
+                    }
+                    
+                    CATEGORY_MAP[itemName].push({ label: s.label, weight: weight });
+                });
+            }
+        });
+
+        // Rebuild ALL_SIZES flat list
+        ALL_SIZES = Object.entries(CATEGORY_MAP).flatMap(([cat, arr]) =>
+            arr.map(o => ({ itemType: cat, label: o.label, weight: o.weight }))
+        );
+
+        // Update dropdowns in existing cards
+        updateAllDropdowns();
+
+        loaderOverlay.style.display = 'none';
+
+    } catch (error) {
+        console.error("Error fetching live items:", error);
+        loaderOverlay.innerHTML = `<p style='color:white; font-weight:700;'>Error Loading Data.<br>Check internet.</p>`;
+        setTimeout(() => { loaderOverlay.style.display = 'none'; }, 3000);
+    }
+  }
+
+  function updateAllDropdowns() {
+      // Find all existing item select boxes
+      document.querySelectorAll('.itemTypeSelect').forEach(select => {
+          const currentVal = select.value;
+          // Clear options except first
+          select.innerHTML = '<option value="">Select Item</option>';
+          // Populate from ITEM_NAMES
+          ITEM_NAMES.forEach(name => {
+              const opt = document.createElement('option');
+              opt.value = name;
+              opt.textContent = name;
+              select.appendChild(opt);
+          });
+          // Restore value if possible
+          if(ITEM_NAMES.includes(currentVal)) {
+              select.value = currentVal;
+          }
+      });
+  }
+
+  // --- SUGGESTION LOGIC ---
   function attachSuggestion(sizeInput, itemTypeSelect, weightInput, card){
     const box=document.createElement('div');
     box.className='suggestion-box';
@@ -783,14 +843,22 @@
       list.forEach(m=>{
         const d=document.createElement('div'); d.className='suggestion-item';
         const leftText = showItemTag ? `[${m.itemType}] ${m.label}` : m.label;
-        d.innerHTML = `<span class="left">${leftText}</span><span class="right">${typeof m.weight==='number'?m.weight:''}</span>`;
+        // Don't show weight if 0
+        const rightText = (m.weight && m.weight > 0) ? m.weight : '';
+        d.innerHTML = `<span class="left">${leftText}</span><span class="right">${rightText}</span>`;
         d.addEventListener('click',()=>{
           if(!itemTypeSelect.value){ itemTypeSelect.value = m.itemType; updateLabelsForCard(card); }
           const prefix = (m.itemType==='Pipe'||m.itemType==='Angle'||m.itemType==='Channel'||m.itemType==='Flat') ? `${m.itemType} ` : '';
           sizeInput.value = `${prefix}${m.label}`;
-          if(typeof m.weight==='number') weightInput.value = m.weight;
+          // Auto-fill extracted weight
+          if(m.weight > 0) weightInput.value = m.weight;
+          else weightInput.value = ''; 
+          
           recalcItemTotals(card); updateEffectiveTotalQty();
           box.style.display='none';
+          
+          // Focus weight input if empty (case where regex failed to extract)
+          if(!weightInput.value) weightInput.focus();
         });
         box.appendChild(d);
       });
@@ -922,13 +990,9 @@
 
       <div class="row">
         <div class="field">
-          <label>Item <span class="sub">Pipe / Angle / Channel...</span></label>
+          <label>Item <span class="sub">Category</span></label>
           <select class="itemTypeSelect">
-            <option value="">Select Item</option>
-            <option value="Pipe">Pipe</option><option value="Angle">Angle</option><option value="Channel">Channel</option>
-            <option value="Sq. Bar">Sq. Bar</option><option value="Round Bar">Round Bar</option><option value="Flat">Flat</option>
-            <option value="Binding Wire">Binding Wire</option><option value="Nails">Nails</option><option value="Bopp Tape">Bopp Tape</option>
-            <option value="Cutting Wheels">Cutting Wheels</option>
+            <option value="">Loading...</option>
           </select>
         </div>
 
@@ -1015,6 +1079,16 @@
     const manualLabel=card.querySelector('.manualQtyLabel');
     const manualNote=card.querySelector('.manualNote');
     const table=card.querySelector('.itemTable');
+
+    // Init Dropdown with current global list
+    if(ITEM_NAMES.length > 0) {
+        itemTypeSelect.innerHTML = '<option value="">Select Item</option>';
+        ITEM_NAMES.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = name;
+            itemTypeSelect.appendChild(opt);
+        });
+    }
 
     function resetCardForNewItem(){
       manualToggle.checked = false;
@@ -1367,8 +1441,8 @@
 
     cards.forEach((card, idx) => {
 
-      const item        = card.querySelector(".itemTypeSelect").value;
-      const orderType   = card.querySelector(".orderTypeSelect").value || "-";
+      const item         = card.querySelector(".itemTypeSelect").value;
+      const orderType    = card.querySelector(".orderTypeSelect").value || "-";
       const rateTypeRaw = card.querySelector(".rateTypeSelect").value || "";
       const rate        = card.querySelector(".rateValue").value || "";
       const basicRate   = card.querySelector(".basicRateValue").value || "";
@@ -1497,17 +1571,13 @@
   }
 
   // --- AUTO-SAVE FEATURE ---
-  // Save Firm and Vehicle details to browser storage on change
   const saveFields = ['firmName', 'vehicleNumber', 'remarks'];
 
   saveFields.forEach(id => {
     const el = document.getElementById(id);
     if(el) {
-      // Load saved value on startup
       const saved = localStorage.getItem('sauda_' + id);
       if(saved) el.value = saved;
-
-      // Save on input
       el.addEventListener('input', () => {
         localStorage.setItem('sauda_' + id, el.value);
       });
@@ -1516,10 +1586,7 @@
 
   function resetForm(){
     if(!confirm('Clear all data and saved history?')) return;
-    
-    // Clear localStorage
     saveFields.forEach(id => localStorage.removeItem('sauda_' + id));
-
     document.querySelectorAll('input,textarea,select').forEach(el=>{
       if(el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
     });
@@ -1531,9 +1598,13 @@
     totalQtyHeader.value='';
   }
 
+  // --- INIT ---
   window.shareOnWhatsApp = shareOnWhatsApp;
   window.resetForm = resetForm;
+  
+  // Start fetching items immediately
+  fetchLiveItems();
+
 </script>
 </body>
-
 </html>
